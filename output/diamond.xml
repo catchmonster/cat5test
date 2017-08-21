@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rbacx>
+    <namespace namespaceName="Application Long Name" namespaceShortName="MALCode"/>
+    <!--Glossary Definition Data below -->
+    <attributeValues>
+        <!-- glossary for the fine grained entitlement named "Entitlement 1" -->
+        <attributeValue id="Entitlement=Entitlement 1">
+            <value>Entitlement 1</value>
+            <attributes>
+                <attribute name="Glossary">
+                    <attributeValues>
+                   <attributeValue><value>This is the glossary text for the entitlement named "Entitlement1"</value>
+                        </attributeValue>
+                    </attributeValues>
+                </attribute>
+            </attributes>
+        </attributeValue>
+        <!-- glossary and entitlements for the role named "Role1 name" -->
+        <attributeValue id="Role=Role1 name">
+            <value>Role1 name</value>
+            <attributes>
+                <attribute name="Glossary">
+                    <attributeValues>
+                       <attributeValue><value>This is the glossary text for the role named "Role1 name"</value>
+                      </attributeValue>
+                    </attributeValues>
+                </attribute>
+                <attribute name="Status">
+                    <attributeValues>
+                        <attributeValue><value>Active</value></attributeValue>
+                    </attributeValues>
+                </attribute>
+                <attribute name="Entitlement">
+                    <attributeValues>
+                        <!-- below are the fine-grained entitlements associated with the  role named "Role1 name"  -->
+                        <attributeValue><value>Entitlement 1</value></attributeValue>
+                        <attributeValue><value>Entitlement 2</value></attributeValue>
+                        <attributeValue><value>Entitlement 3</value></attributeValue>
+                    </attributeValues>
+                </attribute>
+            </attributes>
+        </attributeValue>
+    </attributeValues>
+    <!--DIAMOND Attestation Data below -->
+    <accounts>
+        <account id="BoR ID">
+            <name>logon ID</name>
+            <endPoint>MAL Code</endPoint>
+            <domain>MAL Code</domain>
+            <comments />
+            <attributes>
+                <attribute name="Role">
+                    <attributeValues>
+                        <attributeValueRef id="Role=Role1 name"> </attributeValueRef>
+                    </attributeValues>
+                </attribute>
+            </attributes>
+        </account>
+    </accounts>
+</rbacx>

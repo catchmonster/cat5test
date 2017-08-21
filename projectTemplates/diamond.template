@@ -1,0 +1,30 @@
+[CLIENTS]
+## Here define decoupled client harness to execute to get paload of data
+## comment out existing choice and cut and paste yours
+cassandraClient={'app':'cassandra','cluster':'192.168.1.9','user':'cassandra','passwd':'cassandra','auth':True}
+mongoDBClient={'app':'mongoDB','cluster':'192.168.1.9','user':'cassandra','passwd':'cassandra','auth':True}
+
+
+[Modules]
+## modules can be represented as list of strings - imporved to not include ext
+## it does not matter if you include classes from other librararies in klass list
+## as long as included class in dyn module is presenty. On the other hand if you
+## do not supply a class name that module wraps then import
+## will fail ... don't change extension
+
+## I want to run following modules in order left to right
+## Please insure that names of libraries are case sensitive...
+## what is on the file system shoudl be here, e.g. mongoDBClient should be here mongoDBClient
+## not mongodbClient
+libs = ['cassandraClient', 'mongoDBClient']
+ext = .py
+
+## where are libs
+libsPath = /core/apps/cattest/Clients/lib
+
+## to enable targeting of specific version please enter linux kernel versioning e.g. 1.0.0 or tripplet equivalent
+libsVersion = 1.0.0
+
+## what are the names of classes that are in these modules. Check above documentation
+## All Dyn modules have only one class that is entry point...
+klass = CDriver MDBDriver
