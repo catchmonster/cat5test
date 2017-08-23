@@ -7,33 +7,48 @@
 
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
-import sys
+import sys, ast
 from messageHash import Mask
 from AbstractCore import Core
+
+
+
+class IterMixin(object):
+	def __iter__(self):
+		for attr, value in self.__dict__.items():
+			yield attr, value
+
+
+class User(IterMixin):
+	def __init__(self, user, super):
+		self.user = user
+		self.super = super
+
+class Role(IterMixin):
+	def __init__(self, role, super, login, options):
+		self.role = role
+		self.super = super
+		self.login = login
+		self.options = options
+
+
 
 class CDriver(Core):
 	"""
 	Cassandra Driver
 	"""
-	name = 'cassandra'
-	app = 'app'
-	cluster = 'cluster'
-	user = 'user'
-	passwd = 'passwd'
-	auth = 'auth'
 
 	def run(self):
-		for k,v in self.init.items():
-			if k == CDriver.app and v == CDriver.name: print("Running {} client".format(CDriver.name))
-			if k == CDriver.passwd: self.psw = Mask(v)
-			if k == CDriver.user: self.user = v
-			if k == CDriver.cluster: self.cluster = v
-			if k == CDriver.auth: self.auth = v
-		## encrypted passwd
-		try:
-			self.passwd = self.psw.encrypt()
-		except:
-			sys.exit(0)
+		self.c = self.conf.CASSANDRA
+		print("Running {} client".format(self.c.app))
+		passwdList = ast.literal_eval(self.c.passwd)
+		self.passwd = passwdList[0]
+		self.mask = Mask(self.passwd)
+		self.user = self.c.user
+		self.cluster = self.c.cluster
+		self.auth = self.c.auth
+		self.protocol = self.c.protocol
+		self.queries = self.conf.QUERIES
 
 		self.session = None
 		try:
@@ -42,22 +57,20 @@ class CDriver(Core):
 			print("Error occurred: {}".format(rtErr))
 			sys.exit(1)
 		try:
-			self.getUsersRoles('LIST users', 'LIST roles of %s')
+			self.getUsersRoles(self.queries.users, self.queries.roles)
 		except RuntimeError as rtErr:
 			print("Error occurred: {}".format(rtErr))
 			sys.exit(1)
-			
-	def getMaskedPasswd(self):
-		return self.passwd
 
 	def bootStrap(self,):
 		if self.auth:
 			auth_provider = PlainTextAuthProvider(username=self.user,
-																						password=self.psw.decrypt(self.getMaskedPasswd()))
-			cluster = Cluster(['192.168.1.9'], auth_provider=auth_provider, protocol_version=3)
+																						password=self.mask.decrypt(self.passwd))
+			cluster = Cluster([self.cluster], auth_provider=auth_provider,
+												protocol_version=int(self.protocol))
 			self.session = cluster.connect()
 		else:
-			cluster = Cluster(['192.168.1.9'])
+			cluster = Cluster([self.cluster])
 			self.session = cluster.connect()
 
 	def getUsersRoles(self, qUser, qRoles ):
@@ -65,11 +78,16 @@ class CDriver(Core):
 			users = self.session.execute(qUser)
 
 			for user in users:
+				self.users.append(User(user.name, user.super))
+				##self.users.append(setattr(type('genObject', (IterMixin,), {})(), 'superPrivs', user.super))
+				##self.users.append(self.genObj)
 				print("User:{}\t\tSuper: {}".format(user.name,user.super))
 				print('--------------------------')
 				if qRoles:
 					userRoles = self.session.execute(qRoles, [user.name])
 					for roleOfUser in userRoles:
+						self.roles.append(Role(roleOfUser.role,
+																	 roleOfUser.super, roleOfUser.login, roleOfUser.options))
 						print("Role {}\nSuper {}\nLogin {}\nOptions {}\n".format(roleOfUser.role,
 																												roleOfUser.super,
 																												roleOfUser.login,
@@ -78,10 +96,8 @@ class CDriver(Core):
 
 
 def main():
-	cDriver = CDriver()
-	cDriver.run({'app': 'cassandra', 'cluster': '192.168.1.9', 'user': 'cassandra', 'passwd': 'cassandra', 'auth': True})
-	##cDriver.bootStrap()
-	##cDriver.getUsersRoles('LIST users', 'LIST roles of %s')
+	cDriver = CDriver({'app': 'cassandra', 'cluster': '10.0.2.15', 'user': 'cassandra', 'passwd': 'cassandra', 'auth': True})
+	cDriver.run()
 
 
 if __name__ == "__main__":

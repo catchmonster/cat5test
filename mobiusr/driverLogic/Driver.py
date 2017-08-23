@@ -5,15 +5,15 @@
 ## 4/28/17:9:24 AM
 ##---------------------------------------------
 
-import logging, sys
+import logging, sys, os
 from LightUtil import aConfigParser
 from Nio import nIO
 from DynModuleImport import ModuleImport
 import Config as cf
 import ast, time
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from Timeit import TimeMe
-
+from TDschema import Assemble
 
 
 class IterMixin(object):
@@ -44,6 +44,8 @@ class DriverLogic(object):
 		self.runInstances = dict()
 		self.objectInstances = list()
 		self.staticModList = list()
+		self.appDataContainer = OrderedDict()
+		self.load = namedtuple('AttestData', ['data','xml'])
 
 	@TimeMe.timeitShort
 	def processConf(self):
@@ -54,8 +56,8 @@ class DriverLogic(object):
 		## get a object attribs for all clients apps.A, apps.B ...
 		appList = [a for a in dir(self.app.CLIENTS) if not a.startswith(('__','get','set'))]
 		for app in appList:
-			opt = ast.literal_eval(getattr(self.app.CLIENTS,app))
-			##setattr(self.apps, app, app)
+			projectT = getattr(self.app.CLIENTS,app)
+			opt = os.path.join(self.thisApp.PROJECTS.projectTemplateFolder, projectT)
 			setattr(self.apps, app, opt)
 		## construct module object names attribs for libraries lib1Client lib2Client
 		self.mObject.names = ast.literal_eval(self.app.Modules.libs)
@@ -144,8 +146,14 @@ class DriverLogic(object):
 		for module, objInstance in klass.items():
 			logger.info("Running object instance {} of module {}".format(objInstance, module))
 			objInstance.run()
+			payload = self.load(*objInstance.getAttestationData())
+			self.appDataContainer[module] = payload
 
 
+	@TimeMe.timeitShort
+	def publish(self):
+		pub = Assemble(self.appDataContainer)
+		pub.run()
 
 
 

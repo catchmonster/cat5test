@@ -1,8 +1,8 @@
 [CLIENTS]
 ## Here define decoupled client harness to execute to get paload of data
 ## comment out existing choice and cut and paste yours
-cassandraClient={'app':'cassandra','cluster':'192.168.1.9','user':'cassandra','passwd':'cassandra','auth':True}
-mongoDBClient={'app':'mongoDB','cluster':'192.168.1.9','user':'cassandra','passwd':'cassandra','auth':True}
+cassandraClient = cassandra.template
+mongoDBClient = mongodb.template
 
 
 [Modules]

@@ -25,8 +25,9 @@ class Mask(object):
 
 
 def main():
-	psw = Mask('password')
+	psw = Mask('cassandra')
 	enc = psw.encrypt()
+	print(enc)
 	dec = psw.decrypt(enc)
 
 

@@ -139,6 +139,7 @@ def main():
 	d.loadModules()
 	## now let's run app modules
 	d.run()
+	d.publish()
 
 
 

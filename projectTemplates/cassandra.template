@@ -1,0 +1,15 @@
+[CASSANDRA]
+app = cassandra
+cluster = 192.168.1.9
+user = cassandra
+passwd = [b'\xee\xae3\xaf\xdbA3\xe3\xc1']
+auth = True
+protocol = 3
+
+[QUERIES]
+users = LIST users
+roles = LIST roles of %s
+
+[XML]
+namespaceShortName="CSNDA"
+namespaceName="Cassandra"
