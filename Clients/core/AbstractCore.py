@@ -30,6 +30,7 @@ class Core(object):
 		self.users = list()
 		self.roles = list()
 		self.groups = list()
+		self.permissions = list()
 		self.attestDataContainer = od()
 		##self.genObj = type('genObject', (IterMixin,), {})()
 
@@ -47,9 +48,11 @@ class Core(object):
 	def	getRoles(self):	return self.roles
 	def getGroups(self):	return self.groups
 	def getXMLGenData(self): return self.xml
+	def getPermissions(self): return self.permissions
 
 	def getAttestationData(self):
 		self.attestDataContainer['users'] = self.getUsers()
 		self.attestDataContainer['roles'] = self.getRoles()
 		self.attestDataContainer['groups'] = self.getGroups()
+		self.attestDataContainer['permissions'] = self.getPermissions()
 		return (self.attestDataContainer, self.getXMLGenData())

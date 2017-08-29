@@ -20,12 +20,16 @@ class Assemble(object):
 		self.payload = payload
 		self.data = None
 		self.xml = None
+		self.perms = dict()
 
 
 	def run(self):
 		for m,payload in self.payload.items():
 			print("Publishing XML for application {}".format(m))
 			self.data, self.xml = payload.data, payload.xml
+			for a in self.xml.allPermissions.split():
+				self.perms[a] = a
+
 			self.init()
 			self.setup()
 			self.setup()
@@ -39,51 +43,39 @@ class Assemble(object):
 		return self.data['roles']
 	def getUsers(self):
 		return self.data['users']
+	def getPermissions(self):
+		return self.data['permissions']
 
 
 	def init(self):
 		self.rbacx = api.rbacx()
-		self.comment = api.comments()
-		self.account = api.account()
 		self.namespace = api.namespace()
-
-		##self.attributeValue = api.attributeValue()
-		self.value = api.value()
 
 
 	def setup(self):
-		##sys.stdout.write('<?xml version="1.0" ?>\n')
 		self.namespace.set_namespaceShortName(self.xml.namespaceShortName)
 		self.namespace.set_namespaceName(self.xml.namespaceName)
-
-
 		self.rbacx.set_namespace(self.namespace)
-		##self.accSetup()
+
+		attVals = api.attributeValues()
+		atts = api.attributes()
 
 
-		avs = api.attributeValues()
+		for el in self.getPermissions():
+			acc = api.attributeValue(id= self.xml.roleSyntax + el.role, value= el.username)
+			attrGlossary = api.attribute(name=self.xml.glossary)
+			atts.add_attribute(attrGlossary)
 
-		for el in self.getRoles():
-			acc = api.attributeValue(id= "Role=" + el.role, value= el.role)
-			avs.add_attributeValue(acc)
+			acc.set_attributes(atts)
+			attVals.add_attributeValue(acc)
 
-		self.rbacx.set_attributeValues(avs)
+		self.rbacx.set_attributeValues(attVals)
 		##self.rbacx.set_accounts(self.account)
 
 	def export(self):
 		sys.stdout.write('<?xml version="1.0" ?>\n')
 		self.rbacx.export(sys.stdout, 0)
 
-	def accSetup(self):
-		pass
-		# for  el in self.getRoles():
-		# 	attributeValue.set_id("Role=" + el.role)
-		# 	attributeValue.set_value(el.role)
-		# 	self.attributeValues.set_attributeValue(attributeValue)
-
-			# self.account = api.account(
-			# id=1, name='Aleksandar Kacanski', endPoint=None, domain='Cassandra', comments="user one",
-			# suspended=None, locked=None, createDate=None, updateDate=None, createUser=None, attributes=None)
 
 
 

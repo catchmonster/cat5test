@@ -9,7 +9,14 @@ protocol = 3
 [QUERIES]
 users = LIST users
 roles = LIST roles of %s
+permissionsAll = LIST ALL PERMISSIONS
+permissionsRole = LIST ALL PERMISSIONS OF %s
 
 [XML]
 namespaceShortName="CSNDA"
 namespaceName="Cassandra"
+
+adminGlossaryValue = "This is a default administration account for the new Cassandra installation"
+allPermissions = CREATE ALTER DROP SELECT MODIFY AUTHORIZE DESCRIBE EXECUTE
+roleSyntax = Role=
+glossary = Glossary

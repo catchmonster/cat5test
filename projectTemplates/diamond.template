@@ -2,8 +2,8 @@
 ## Here define decoupled client harness to execute to get paload of data
 ## comment out existing choice and cut and paste yours
 cassandraClient = cassandra.template
-mongoDBClient = mongodb.template
-
+##mongoDBClient = mongodb.template
+##netezzaDBClient = netezzadb.template
 
 [Modules]
 ## modules can be represented as list of strings - imporved to not include ext
@@ -16,7 +16,8 @@ mongoDBClient = mongodb.template
 ## Please insure that names of libraries are case sensitive...
 ## what is on the file system shoudl be here, e.g. mongoDBClient should be here mongoDBClient
 ## not mongodbClient
-libs = ['cassandraClient', 'mongoDBClient']
+libs = ['cassandraClient']
+##, 'mongoDBClient']
 ext = .py
 
 ## where are libs
@@ -27,4 +28,5 @@ libsVersion = 1.0.0
 
 ## what are the names of classes that are in these modules. Check above documentation
 ## All Dyn modules have only one class that is entry point...
-klass = CDriver MDBDriver
+klass = CDriver
+##MDBDriver

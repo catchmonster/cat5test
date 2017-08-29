@@ -10,27 +10,7 @@ from cassandra.auth import PlainTextAuthProvider
 import sys, ast
 from messageHash import Mask
 from AbstractCore import Core
-
-
-
-class IterMixin(object):
-	def __iter__(self):
-		for attr, value in self.__dict__.items():
-			yield attr, value
-
-
-class User(IterMixin):
-	def __init__(self, user, super):
-		self.user = user
-		self.super = super
-
-class Role(IterMixin):
-	def __init__(self, role, super, login, options):
-		self.role = role
-		self.super = super
-		self.login = login
-		self.options = options
-
+from cassandraCatalog import User, Role, Perm
 
 
 class CDriver(Core):
@@ -56,11 +36,19 @@ class CDriver(Core):
 		except RuntimeError as rtErr:
 			print("Error occurred: {}".format(rtErr))
 			sys.exit(1)
+
 		try:
 			self.getUsersRoles(self.queries.users, self.queries.roles)
 		except RuntimeError as rtErr:
 			print("Error occurred: {}".format(rtErr))
 			sys.exit(1)
+
+		try:
+			self.getPermissionsOnRole(self.getRoles(), role=None)
+		except RuntimeError as rtErr:
+			print("Error occurred: {}".format(rtErr))
+			sys.exit(1)
+
 
 	def bootStrap(self,):
 		if self.auth:
@@ -95,8 +83,34 @@ class CDriver(Core):
 			print('--------------------------')
 
 
+
+	def getPermissionsOnRole(self,  rolesAll, role=None):
+		rolePermissions = None
+		rolePermissionsAll = None
+		if role:
+			rolePermissions = self.session.execute(self.queries.permissionsRole, [role])
+		else:
+			## go through all roles and get all permissions
+			rolePermissionsAll = self.session.execute(self.queries.permissionsAll)
+
+		if rolePermissions != None:
+			for pRole in rolePermissions:
+				print(pRole)
+
+		if rolePermissionsAll != None:
+			for pRole in rolePermissionsAll:
+				self.permissions.append(Perm(pRole.role,
+																		 pRole.username, pRole.resource, pRole.permission))
+				print("Role {}\nUserName {}\nResource {}\nPermission {}\n".format(pRole.role,
+																																 pRole.username,
+																																 pRole.resource,
+																																 pRole.permission))
+			print('--------------------------')
+
+
+
 def main():
-	cDriver = CDriver({'app': 'cassandra', 'cluster': '10.0.2.15', 'user': 'cassandra', 'passwd': 'cassandra', 'auth': True})
+	cDriver = CDriver('/core/apps/cattest/projectTemplates/cassandra.template')
 	cDriver.run()
 
 
